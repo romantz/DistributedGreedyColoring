@@ -1,25 +1,50 @@
 package projects.GreedyColoring.nodes.nodeImplementations;
 
 
+import projects.GreedyColoring.timers.InitialTimer;
+import projects.GreedyColoring.timers.PrintTimer;
+import projects.GreedyColoring.timers.RootColorChoosingTimer;
 import projects.defaultProject.nodes.timers.MessageTimer;
 import sinalgo.configuration.WrongConfigurationException;
 import sinalgo.gui.transformation.PositionTransformation;
 import sinalgo.nodes.Node;
 import sinalgo.nodes.edges.Edge;
 import sinalgo.nodes.messages.Inbox;
+import projects.GreedyColoring.nodes.messages.BinaryColorMessage;
 import sinalgo.nodes.messages.Message;
-import projects.GreedyColoring.nodes.messages.MarkMessage;
 
 import java.awt.*;
+import java.util.HashMap;
 
 /**
  * An internal node (or leaf node) of the tree.
  */
 public class TreeNode extends Node {
 
+    public static HashMap<String, Color> stringToColor = new HashMap<String, Color>();
+
 	public TreeNode parent = null; // the parent in the tree, null if this node is the root
     private int BINARY_COLOR_STRING_INITIAL_LENGTH = 31;
-    private String binaryColorString = "";
+    public String binaryColorString = "";
+
+    public void chooseNextColor(int smallestDifferentIndex){
+        int newDesiredLength = (int)Math.ceil(log2(binaryColorString.length()));
+        String newBinaryColorString =
+                convertIntToBinaryStringWithLength(smallestDifferentIndex, newDesiredLength) +
+                        binaryColorString.charAt(smallestDifferentIndex);
+        binaryColorString = newBinaryColorString;
+        Color color = stringToColor.get(binaryColorString);
+        if (color != null)
+            this.setColor(color);
+    }
+
+    public void sendMessageToAllChildren(Message msg) {
+        for(Edge e : outgoingConnections) {
+            if(!e.endNode.equals(parent)) { // don't send it to the parent
+                send(msg, e.endNode);
+            }
+        }
+    }
 
     private String convertIntToBinaryStringWithLength(int num, int desiredLength) {
         StringBuilder sb = new StringBuilder();
@@ -34,30 +59,45 @@ public class TreeNode extends Node {
 	public void checkRequirements() throws WrongConfigurationException {
 	}
 
+	private double log2(double x){
+        return Math.log(x) / Math.log(2);
+    }
+
 	@Override
 	public void handleMessages(Inbox inbox) {
 		while(inbox.hasNext()) {
-			Message m = inbox.next();
-			if(m instanceof MarkMessage) {
-				if(parent == null || !inbox.getSender().equals(parent)) {
-					continue;// don't consider mark messages sent by children
-				}
-				this.setColor(Color.RED);
-				// forward the message to all children
-				for(Edge e : outgoingConnections) {
-					if(!e.endNode.equals(parent)) { // don't send it to the parent
-						send(m, e.endNode);
-					}
-				}
-				// alternatively, we could broadcast the message:
-				// broadcast(m);
-			}
-		}
+            Message m = inbox.next();
+            if (m instanceof BinaryColorMessage) {
+                String data = ((BinaryColorMessage) m).data;
+                if(data.length() <= 3) {
+
+                }
+                else {
+                    int smallestDifferentIndex = -1;
+                    for(int i = 0; i < binaryColorString.length(); i++) {
+                        if(smallestDifferentIndex == -1 &&
+                                binaryColorString.charAt(i) !=
+                                        data.charAt(i))
+                            smallestDifferentIndex = i;
+                    }
+
+
+                    chooseNextColor(smallestDifferentIndex);
+                    BinaryColorMessage msg = new BinaryColorMessage(binaryColorString);
+                    sendMessageToAllChildren(msg);
+                }
+            }
+        }
 	}
 
 	@Override
 	public void init() {
         binaryColorString = convertIntToBinaryStringWithLength(ID, BINARY_COLOR_STRING_INITIAL_LENGTH);
+        InitialTimer it = new InitialTimer(this);
+        it.startRelative(1, this);
+
+        RootColorChoosingTimer rcct = new RootColorChoosingTimer(this);
+        rcct.startRelative(2, this);
 	}
 
 	@Override
@@ -73,12 +113,12 @@ public class TreeNode extends Node {
 	}
 
 	public void draw(Graphics g, PositionTransformation pt, boolean highlight){
-		super.drawNodeAsDiskWithText(g, pt, highlight, Integer.toString(ID), 15, Color.YELLOW);
+		super.drawAsDisk(g, pt, highlight, 12);
 	}
 
 	@NodePopupMethod(menuText = "Color children")
 	public void colorKids() {
-		MarkMessage msg = new MarkMessage();
+		BinaryColorMessage msg = new BinaryColorMessage(binaryColorString);
 		MessageTimer timer = new MessageTimer(msg);
 		timer.startRelative(1, this);
 	}

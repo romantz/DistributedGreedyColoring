@@ -126,6 +126,15 @@ public class CustomGlobal extends AbstractCustomGlobal{
 			return;
 		}
 
+		TreeNode.stringToColor.put("000", new Color(255, 0, 0));
+		TreeNode.stringToColor.put("001", new Color(255, 128, 0));
+		TreeNode.stringToColor.put("010", new Color(255, 255, 0));
+		TreeNode.stringToColor.put("011", new Color(50, 255, 0));
+		TreeNode.stringToColor.put("100", new Color(0, 120, 200));
+		TreeNode.stringToColor.put("101", new Color(40, 0, 200));
+		TreeNode.stringToColor.put("110", new Color(100, 0, 130));
+		TreeNode.stringToColor.put("111", new Color(200, 100, 200));
+
 		// remove all nodes (if any)
 		Runtime.clearAllNodes();
 		treeNodes.clear();
@@ -181,6 +190,7 @@ public class CustomGlobal extends AbstractCustomGlobal{
 					tn.setPosition((leftMostXOffset + currentNode.getPosition().xCoord)/2, posY, 0);
 					tn = null;
 				}
+
 			}
 			// Cleanup-code. If at the right-side of the tree, the we don't have enough children
 			// for the parent, we need to finish the parent's placement outside the loop.
