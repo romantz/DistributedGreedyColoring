@@ -41,7 +41,6 @@ import sinalgo.configuration.Configuration;
 import sinalgo.nodes.Node;
 import sinalgo.runtime.AbstractCustomGlobal;
 import sinalgo.runtime.Runtime;
-import projects.GreedyColoring.nodes.nodeImplementations.LeafNode;
 import projects.GreedyColoring.nodes.nodeImplementations.TreeNode;
 import sinalgo.tools.Tools;
 
@@ -99,70 +98,69 @@ public class CustomGlobal extends AbstractCustomGlobal{
 		Tools.repaintGUI();
 	}
 
-	
+
 	// a vector of all non-leaf nodes
 	Vector<TreeNode> treeNodes = new Vector<TreeNode>();
 	// the leaves of the node
-	Vector<LeafNode> leaves = new Vector<LeafNode>();
+	Vector<TreeNode> leaves = new Vector<TreeNode>();
 
 	/**
 	 * Builds a tree for the specified number of leaves and
-	 * fan-out, and removes all nodes in the framework that were 
-	 * added prior to this method call. 
+	 * fan-out, and removes all nodes in the framework that were
+	 * added prior to this method call.
 	 * <p>
 	 * The method places all leaves on a line at the bottom of the screen
 	 * and builds a balanced tree on top (bottom up), such that each tree-node
-	 * is is parent of fanOut children. 
-	 *  
+	 * is is parent of fanOut children.
+	 *
 	 * @param fanOut The max. fan-out of tree-nodes. E.g. 2 results in a binary tree
 	 * @param numLeaves The number of leaf-nodes the tree should contain.
 	 */
 	public void buildTree(int fanOut, int numLeaves) {
 		if(fanOut < 2) {
 			Tools.showMessageDialog("The fanOut needs to be at least 2.\nCreation of tree aborted.");
-			return; 
+			return;
 		}
 		if(numLeaves <= 0) {
 			Tools.showMessageDialog("The number of leaves needs to be at least 1.\nCreation of tree aborted.");
-			return; 
+			return;
 		}
-		
+
 		// remove all nodes (if any)
 		Runtime.clearAllNodes();
 		treeNodes.clear();
 		leaves.clear();
 		// Reset ID counter of leaf-nodes
-		LeafNode.smallIdCounter = 0;
-		
+
 		// some vectors to store the nodes that we still need to process
 		Vector<TreeNode> toProcess = new Vector<TreeNode>();
 		Vector<TreeNode> toProcess2 = new Vector<TreeNode>();
 		Vector<TreeNode> swap;
-		
+
 		double dx = ((double) Configuration.dimX) / (numLeaves + 1); // distance between two leaf-nodes
 		double posY = Configuration.dimY - 30; // y-offset of all leave nodes
-		
+
 		// create the leaves (incl. assigning their position)
 		for(int i=0; i<numLeaves; i++) {
-			LeafNode ln = new LeafNode();
+			TreeNode ln = new TreeNode();
 			ln.setPosition((i+1)*dx, posY, 0);
 			ln.finishInitializationWithDefaultModels(true);
 			leaves.add(ln);
 			toProcess.add(ln);
 		}
-		
+
 		// the toProcess vector contains nodes that need to be processed.
 		// initially, it contains all the leaf-nodes. In the second iteration,
 		// all parents of the leaf-nodes, then the grand-paerents of the leaf-nodes
 		// and so on.
 		while(toProcess.size() > 1) {
 			posY -= 100; // the distance along the y-axis between the nodes
-			
+
 			TreeNode tn = null; // the new tree-node to be added
 			double leftMostXOffset = 0;
 			int numAdded = 0;
 			TreeNode currentNode = null;
-			
+
 			// loop over all nodes in the list, and group fanOut nodes, attach them 
 			// to a new parent (tn), which will be placed in the center of the 
 			// associated nodes.
@@ -173,7 +171,7 @@ public class CustomGlobal extends AbstractCustomGlobal{
 					tn.finishInitializationWithDefaultModels(true);
 					treeNodes.add(tn);
 					toProcess2.add(tn);
-					leftMostXOffset = currentNode.getPosition().xCoord; 
+					leftMostXOffset = currentNode.getPosition().xCoord;
 					numAdded = 0;
 				}
 				currentNode.addConnectionTo(tn);
@@ -197,9 +195,9 @@ public class CustomGlobal extends AbstractCustomGlobal{
 			toProcess = toProcess2;
 			toProcess2 = swap;
 		}
-		
+
 		// Repaint the GUI as we have added some nodes
 		Tools.repaintGUI();
 	}
-	
+
 }

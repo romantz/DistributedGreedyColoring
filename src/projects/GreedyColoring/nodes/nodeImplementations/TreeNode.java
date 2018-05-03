@@ -3,6 +3,7 @@ package projects.GreedyColoring.nodes.nodeImplementations;
 
 import projects.defaultProject.nodes.timers.MessageTimer;
 import sinalgo.configuration.WrongConfigurationException;
+import sinalgo.gui.transformation.PositionTransformation;
 import sinalgo.nodes.Node;
 import sinalgo.nodes.edges.Edge;
 import sinalgo.nodes.messages.Inbox;
@@ -13,12 +14,11 @@ import java.awt.*;
 
 /**
  * An internal node (or leaf node) of the tree.
- * Note that the leaves are instances of LeafNode, a subclass of this class. 
  */
 public class TreeNode extends Node {
 
 	public TreeNode parent = null; // the parent in the tree, null if this node is the root
-	
+
 	@Override
 	public void checkRequirements() throws WrongConfigurationException {
 	}
@@ -59,8 +59,12 @@ public class TreeNode extends Node {
 	@Override
 	public void postStep() {
 	}
-	
-	@NodePopupMethod(menuText = "Color children") 
+
+	public void draw(Graphics g, PositionTransformation pt, boolean highlight){
+		super.drawNodeAsDiskWithText(g, pt, highlight, Integer.toString(ID), 15, Color.YELLOW);
+	}
+
+	@NodePopupMethod(menuText = "Color children")
 	public void colorKids() {
 		MarkMessage msg = new MarkMessage();
 		MessageTimer timer = new MessageTimer(msg);
