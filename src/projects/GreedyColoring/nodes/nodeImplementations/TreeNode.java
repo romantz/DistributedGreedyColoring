@@ -18,6 +18,17 @@ import java.awt.*;
 public class TreeNode extends Node {
 
 	public TreeNode parent = null; // the parent in the tree, null if this node is the root
+    private int BINARY_COLOR_STRING_INITIAL_LENGTH = 31;
+    private String binaryColorString = "";
+
+    private String convertIntToBinaryStringWithLength(int num, int desiredLength) {
+        StringBuilder sb = new StringBuilder();
+        String binNum = Integer.toBinaryString(num);
+        for(int i = binNum.length(); i < desiredLength; i++)
+            sb.append("0");
+        sb.append(binNum);
+        return sb.toString();
+    }
 
 	@Override
 	public void checkRequirements() throws WrongConfigurationException {
@@ -46,6 +57,7 @@ public class TreeNode extends Node {
 
 	@Override
 	public void init() {
+        binaryColorString = convertIntToBinaryStringWithLength(ID, BINARY_COLOR_STRING_INITIAL_LENGTH);
 	}
 
 	@Override
