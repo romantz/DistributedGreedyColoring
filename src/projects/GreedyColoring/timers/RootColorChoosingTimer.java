@@ -17,12 +17,16 @@ public class RootColorChoosingTimer extends Timer{
 
     public void fire() {
         if(node.parent == null) {
-            int smallestDifferentIndex = 0;
-            node.chooseNextColor(smallestDifferentIndex);
-            BinaryColorMessage msg = new BinaryColorMessage(node.binaryColorString);
-            node.sendMessageToAllChildren(msg);
-            if(node.binaryColorString.length() > 3)
+            if(node.binaryColorString.length() > 3) {
                 this.startRelative(1, node); // recursive restart of the timer
+                int smallestDifferentIndex = 0;
+                node.chooseNextColor(smallestDifferentIndex);
+                BinaryColorMessage msg = new BinaryColorMessage(node.binaryColorString);
+                node.sendMessageToAllChildren(msg);
+            }
+            else {
+
+            }
         }
     }
 }
