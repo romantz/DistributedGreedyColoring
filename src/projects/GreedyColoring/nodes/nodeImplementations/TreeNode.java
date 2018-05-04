@@ -22,19 +22,40 @@ import java.util.HashMap;
  */
 public class TreeNode extends Node {
 
-    public static HashMap<String, Color> stringToColor = new HashMap<String, Color>();
+    // The mapping between binary representation and color
+    public static HashMap<String, Color> stringToColor = new HashMap<String, Color>(){{
+        put("000", new Color(255, 0, 0));
+        put("001", new Color(255, 128, 0));
+        put("010", new Color(255, 255, 0));
+        put("011", new Color(50, 255, 0));
+        put("100", new Color(0, 120, 200));
+        put("101", new Color(40, 0, 200));
+        put("110", new Color(100, 0, 130));
+        put("111", new Color(200, 100, 200));
+    }};
 
-	public TreeNode parent = null; // the parent in the tree, null if this node is the root
-    private int BINARY_COLOR_STRING_INITIAL_LENGTH = 31;
+
+
+    // The length of the initial binary representation of the node's color
+    public static final int BINARY_COLOR_STRING_INITIAL_LENGTH = 31;
+
+    // The binary representation of the node's color
     public String binaryColorString = "";
+
+    // The parent in the tree, null if this node is the root
+    public TreeNode parent = null;
+
+    // The integer representation of the node's color. Used in the last stage of the algorithm
     public int color = -1;
 
+    // Color this node according to its binary color using the hash map stringToColor
     public void colorNode(){
         Color color = stringToColor.get(binaryColorString);
         if (color != null)
             this.setColor(color);
     }
 
+    // After an 8-coloring was achieved, a timer is started
     public void startGreedyTimer(){
         color = Integer.parseInt(binaryColorString, 2);
         if(color != 0){
@@ -126,13 +147,6 @@ public class TreeNode extends Node {
 
 	public void draw(Graphics g, PositionTransformation pt, boolean highlight){
 		super.drawAsDisk(g, pt, highlight, 12);
-	}
-
-	@NodePopupMethod(menuText = "Color children")
-	public void colorKids() {
-		BinaryColorMessage msg = new BinaryColorMessage(binaryColorString);
-		MessageTimer timer = new MessageTimer(msg);
-		timer.startRelative(1, this);
 	}
 
 }

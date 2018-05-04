@@ -87,18 +87,6 @@ public class CustomGlobal extends AbstractCustomGlobal{
 		buildTree(fanOut, numLeaves);
 	}
 
-	/**
-	 * remove the markings from all nodes
-	 */
-	@CustomButton(buttonText="unmark", toolTipText="unmarks all nodes")
-	public void unMark() {
-		for(Node n : Tools.getNodeList()) {
-			n.setColor(Color.BLACK);
-		}
-		Tools.repaintGUI();
-	}
-
-
 	// a vector of all non-leaf nodes
 	Vector<TreeNode> treeNodes = new Vector<TreeNode>();
 	// the leaves of the node
@@ -112,6 +100,9 @@ public class CustomGlobal extends AbstractCustomGlobal{
 	 * The method places all leaves on a line at the bottom of the screen
 	 * and builds a balanced tree on top (bottom up), such that each tree-node
 	 * is is parent of fanOut children.
+     *
+     * This method was taken from sample6 and changed so that there is no use of LeafNode
+     * and now TreeNode can serve as leaves too.
 	 *
 	 * @param fanOut The max. fan-out of tree-nodes. E.g. 2 results in a binary tree
 	 * @param numLeaves The number of leaf-nodes the tree should contain.
@@ -125,15 +116,6 @@ public class CustomGlobal extends AbstractCustomGlobal{
 			Tools.showMessageDialog("The number of leaves needs to be at least 1.\nCreation of tree aborted.");
 			return;
 		}
-
-		TreeNode.stringToColor.put("000", new Color(255, 0, 0));
-		TreeNode.stringToColor.put("001", new Color(255, 128, 0));
-		TreeNode.stringToColor.put("010", new Color(255, 255, 0));
-		TreeNode.stringToColor.put("011", new Color(50, 255, 0));
-		TreeNode.stringToColor.put("100", new Color(0, 120, 200));
-		TreeNode.stringToColor.put("101", new Color(40, 0, 200));
-		TreeNode.stringToColor.put("110", new Color(100, 0, 130));
-		TreeNode.stringToColor.put("111", new Color(200, 100, 200));
 
 		// remove all nodes (if any)
 		Runtime.clearAllNodes();
