@@ -25,7 +25,7 @@ public class RootColorChoosingTimer extends Timer{
                 node.sendMessageToAllChildren(msg);
             }
             else {
-
+                node.startGreedyTimer();
             }
         }
     }

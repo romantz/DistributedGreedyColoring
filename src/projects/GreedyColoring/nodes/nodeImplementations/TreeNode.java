@@ -1,6 +1,7 @@
 package projects.GreedyColoring.nodes.nodeImplementations;
 
 
+import projects.GreedyColoring.timers.GreedyColoringTimer;
 import projects.GreedyColoring.timers.InitialTimer;
 import projects.GreedyColoring.timers.PrintTimer;
 import projects.GreedyColoring.timers.RootColorChoosingTimer;
@@ -26,6 +27,21 @@ public class TreeNode extends Node {
 	public TreeNode parent = null; // the parent in the tree, null if this node is the root
     private int BINARY_COLOR_STRING_INITIAL_LENGTH = 31;
     public String binaryColorString = "";
+    public int color = -1;
+
+    public void colorNode(){
+        Color color = stringToColor.get(binaryColorString);
+        if (color != null)
+            this.setColor(color);
+    }
+
+    public void startGreedyTimer(){
+        color = Integer.parseInt(binaryColorString, 2);
+        if(color != 0){
+            GreedyColoringTimer gct = new GreedyColoringTimer(this);
+            gct.startRelative(color, this);
+        }
+    }
 
     public void chooseNextColor(int smallestDifferentIndex){
         int newDesiredLength = (int)Math.ceil(log2(binaryColorString.length()));
@@ -33,9 +49,7 @@ public class TreeNode extends Node {
                 convertIntToBinaryStringWithLength(smallestDifferentIndex, newDesiredLength) +
                         binaryColorString.charAt(smallestDifferentIndex);
         binaryColorString = newBinaryColorString;
-        Color color = stringToColor.get(binaryColorString);
-        if (color != null)
-            this.setColor(color);
+        colorNode();
     }
 
     public void sendMessageToAllChildren(Message msg) {
@@ -46,7 +60,7 @@ public class TreeNode extends Node {
         }
     }
 
-    private String convertIntToBinaryStringWithLength(int num, int desiredLength) {
+    public String convertIntToBinaryStringWithLength(int num, int desiredLength) {
         StringBuilder sb = new StringBuilder();
         String binNum = Integer.toBinaryString(num);
         for(int i = binNum.length(); i < desiredLength; i++)
@@ -70,7 +84,7 @@ public class TreeNode extends Node {
             if (m instanceof BinaryColorMessage) {
                 String data = ((BinaryColorMessage) m).data;
                 if(data.length() <= 3) {
-
+                    startGreedyTimer();
                 }
                 else {
                     int smallestDifferentIndex = -1;
@@ -80,8 +94,6 @@ public class TreeNode extends Node {
                                         data.charAt(i))
                             smallestDifferentIndex = i;
                     }
-
-
                     chooseNextColor(smallestDifferentIndex);
                     BinaryColorMessage msg = new BinaryColorMessage(binaryColorString);
                     sendMessageToAllChildren(msg);
