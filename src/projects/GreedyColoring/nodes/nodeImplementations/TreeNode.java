@@ -3,9 +3,7 @@ package projects.GreedyColoring.nodes.nodeImplementations;
 
 import projects.GreedyColoring.timers.GreedyColoringTimer;
 import projects.GreedyColoring.timers.InitialTimer;
-import projects.GreedyColoring.timers.PrintTimer;
 import projects.GreedyColoring.timers.RootColorChoosingTimer;
-import projects.defaultProject.nodes.timers.MessageTimer;
 import sinalgo.configuration.WrongConfigurationException;
 import sinalgo.gui.transformation.PositionTransformation;
 import sinalgo.nodes.Node;
@@ -34,8 +32,6 @@ public class TreeNode extends Node {
         put("111", new Color(200, 100, 200));
     }};
 
-
-
     // The length of the initial binary representation of the node's color
     public static final int BINARY_COLOR_STRING_INITIAL_LENGTH = 31;
 
@@ -48,14 +44,19 @@ public class TreeNode extends Node {
     // The integer representation of the node's color. Used in the last stage of the algorithm
     public int color = -1;
 
-    // Color this node according to its binary color using the hash map stringToColor
+    /**
+     * Color this node according to its binary color using the hash map stringToColor
+     */
     public void colorNode(){
         Color color = stringToColor.get(binaryColorString);
         if (color != null)
             this.setColor(color);
     }
 
-    // After an 8-coloring was achieved, a timer is started
+    /**
+     * After an 8-coloring was achieved, a GreedyColoringTimer is started and sets off in X rounds
+     * where X is the integer value of the node's color
+     */
     public void startGreedyTimer(){
         color = Integer.parseInt(binaryColorString, 2);
         if(color != 0){
@@ -64,6 +65,13 @@ public class TreeNode extends Node {
         }
     }
 
+    /**
+     * calculate the new color of the node as a concatenation of
+     * bin(smallestDifferentIndex) and binaryColorString[smallestDifferentIndex]
+     *
+     * @param smallestDifferentIndex The binaryColorString of this node and the parent node differ
+     *                               in this index
+     */
     public void chooseNextColor(int smallestDifferentIndex){
         int newDesiredLength = (int)Math.ceil(log2(binaryColorString.length()));
         String newBinaryColorString =
@@ -73,6 +81,10 @@ public class TreeNode extends Node {
         colorNode();
     }
 
+    /**
+     * Send the given message to all children of this node
+     * @param msg The message to send
+     */
     public void sendMessageToAllChildren(Message msg) {
         for(Edge e : outgoingConnections) {
             if(!e.endNode.equals(parent)) { // don't send it to the parent
@@ -81,6 +93,12 @@ public class TreeNode extends Node {
         }
     }
 
+    /**
+     * Convert the given number to a binary string of the desired length
+     * @param num The number to convert
+     * @param desiredLength The desired length of the binary numbers
+     * @return
+     */
     public String convertIntToBinaryStringWithLength(int num, int desiredLength) {
         StringBuilder sb = new StringBuilder();
         String binNum = Integer.toBinaryString(num);
@@ -94,6 +112,11 @@ public class TreeNode extends Node {
 	public void checkRequirements() throws WrongConfigurationException {
 	}
 
+    /**
+     * Calculate log base 2 of the given number
+     * @param x The number to calculate log base 2 of
+     * @return
+     */
 	private double log2(double x){
         return Math.log(x) / Math.log(2);
     }
@@ -102,12 +125,16 @@ public class TreeNode extends Node {
 	public void handleMessages(Inbox inbox) {
 		while(inbox.hasNext()) {
             Message m = inbox.next();
+            // We received the parent's color
             if (m instanceof BinaryColorMessage) {
                 String data = ((BinaryColorMessage) m).data;
+                // Check if 8-coloring has been achieved
                 if(data.length() <= 3) {
                     startGreedyTimer();
                 }
                 else {
+                    // Calculate an index where binaryColorString and parent.binaryColorString
+                    // differ and then use this index to calculate the new color of this node
                     int smallestDifferentIndex = -1;
                     for(int i = 0; i < binaryColorString.length(); i++) {
                         if(smallestDifferentIndex == -1 &&
@@ -125,10 +152,17 @@ public class TreeNode extends Node {
 
 	@Override
 	public void init() {
+	    // On initialization, calculate the node's color based on its ID
         binaryColorString = convertIntToBinaryStringWithLength(ID, BINARY_COLOR_STRING_INITIAL_LENGTH);
+
+        // Start an InitialTimer which is responsible of sending the first color message to children
+        // a single round after this node was created
         InitialTimer it = new InitialTimer(this);
         it.startRelative(1, this);
 
+        // Start a RootColorChoosingTimer which will be responsible for the coloring of the root node
+        // since unlike all other nodes, the root node does not receive a color message from
+        // its parent which is used as a trigger to calculate a new color
         RootColorChoosingTimer rcct = new RootColorChoosingTimer(this);
         rcct.startRelative(2, this);
 	}
@@ -146,7 +180,7 @@ public class TreeNode extends Node {
 	}
 
 	public void draw(Graphics g, PositionTransformation pt, boolean highlight){
-		super.drawAsDisk(g, pt, highlight, 12);
+	    super.drawAsDisk(g, pt, highlight, 10);
 	}
 
 }

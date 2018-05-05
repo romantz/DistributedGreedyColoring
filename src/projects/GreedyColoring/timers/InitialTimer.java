@@ -2,14 +2,14 @@ package projects.GreedyColoring.timers;
 
 import projects.GreedyColoring.nodes.messages.BinaryColorMessage;
 import projects.GreedyColoring.nodes.nodeImplementations.TreeNode;
-import sinalgo.nodes.edges.Edge;
 import sinalgo.nodes.timers.Timer;
 
 /**
- * Created by Roman_ on 03/05/2018.
+ * A timer which is responsible of sending the color of the given node to its children
+ * on the first round after the node has been created
  */
 public class InitialTimer extends Timer{
-
+    // The node that started this timer
     private TreeNode node;
 
     public InitialTimer(TreeNode tn){

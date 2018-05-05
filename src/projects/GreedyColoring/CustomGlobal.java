@@ -102,7 +102,7 @@ public class CustomGlobal extends AbstractCustomGlobal{
 	 * is is parent of fanOut children.
      *
      * This method was taken from sample6 and changed so that there is no use of LeafNode
-     * and now TreeNode can serve as leaves too.
+     * and now TreeNode can represent the leaves too.
 	 *
 	 * @param fanOut The max. fan-out of tree-nodes. E.g. 2 results in a binary tree
 	 * @param numLeaves The number of leaf-nodes the tree should contain.
